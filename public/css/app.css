@@ -1529,3 +1529,81 @@ details > summary.btn::marker { content: ''; }
     background: transparent;
     box-shadow: none;
 }
+
+
+/* FINAL OVERRIDE — remove the active-module vertical accent in the sidebar.
+   Covers normal links, nested module links, keyboard focus, and pseudo-elements. */
+.sidebar .nav-link,
+.sidebar .nav-link.active,
+.sidebar .nav-group-inner .nav-link,
+.sidebar .nav-group-inner .nav-link.active,
+.sidebar .nav-link:focus,
+.sidebar .nav-link:focus-visible,
+.sidebar .nav-group-inner .nav-link:focus,
+.sidebar .nav-group-inner .nav-link:focus-visible {
+    border: 0 !important;
+    border-left: 0 !important;
+    border-inline-start: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background-image: none !important;
+}
+
+.sidebar .nav-link::before,
+.sidebar .nav-link::after,
+.sidebar .nav-group-inner .nav-link::before,
+.sidebar .nav-group-inner .nav-link::after {
+    content: none !important;
+    display: none !important;
+    width: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Keep the selected module background; remove only the line/ring. */
+.sidebar .nav-group-inner .nav-link.active {
+    background: #244b79 !important;
+    color: #fff !important;
+}
+
+
+/* FIX: The collapsed-sidebar flyout panel is reparented to document.body by
+   app.js. Target the panel itself, not .sidebar, so active module focus styling
+   is removed from the actual floating menu. */
+.sidebar-module-flyout .nav-link,
+.sidebar-module-flyout .nav-link.active,
+.sidebar-module-flyout .nav-link:focus,
+.sidebar-module-flyout .nav-link:focus-visible,
+.sidebar-module-flyout .nav-link.active:focus,
+.sidebar-module-flyout .nav-link.active:focus-visible,
+.nav-group-panel.sidebar-module-flyout .nav-link,
+.nav-group-panel.sidebar-module-flyout .nav-link.active,
+.nav-group-panel.sidebar-module-flyout .nav-link:focus,
+.nav-group-panel.sidebar-module-flyout .nav-link:focus-visible {
+    border: 0 !important;
+    border-left: 0 !important;
+    border-inline-start: 0 !important;
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar-module-flyout .nav-link::before,
+.sidebar-module-flyout .nav-link::after,
+.nav-group-panel.sidebar-module-flyout .nav-link::before,
+.nav-group-panel.sidebar-module-flyout .nav-link::after {
+    content: none !important;
+    display: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: none !important;
+}
+
+/* Keep the active row's soft background and text color. */
+.sidebar-module-flyout .nav-link.active,
+.nav-group-panel.sidebar-module-flyout .nav-link.active {
+    background: #eaf1fa !important;
+    color: #315f9f !important;
+}

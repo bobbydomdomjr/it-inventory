@@ -172,7 +172,7 @@
      <button type="button" class="nav-group-toggle" id="sidebarGroup{{ $groupTitle }}Toggle" aria-expanded="true" aria-controls="sidebarGroup{{ $groupTitle }}" data-sidebar-tooltip="{{ ucfirst($group['label']) }}">
       <span class="nav-group-label"><i class="bi {{ $group['icon'] }}" aria-hidden="true"></i><span class="nav-label">{{ $group['label'] }}</span></span><i class="bi bi-chevron-down nav-group-chevron" aria-hidden="true"></i>
      </button>
-     <div class="nav-group-panel" id="sidebarGroup{{ $groupTitle }}" aria-labelledby="sidebarGroup{{ $groupTitle }}Toggle">
+     <div class="nav-group-panel" id="sidebarGroup{{ $groupTitle }}" aria-labelledby="sidebarGroup{{ $groupTitle }}Toggle" data-sidebar-group-label="{{ $group['label'] }}">
       <div class="nav-group-inner">
        @foreach($group['items'] as $item)
         <a class="nav-link {{ $item['active'] ? 'active' : '' }}" href="{{ $item['href'] }}"><i class="bi {{ $item['icon'] }}"></i><span>{{ $item['label'] }}</span>@if($item['badge'] > 0)<span class="nav-count">{{ $item['badge'] > 99 ? '99+' : $item['badge'] }}</span>@endif</a>

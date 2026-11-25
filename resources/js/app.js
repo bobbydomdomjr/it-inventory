@@ -45,11 +45,18 @@
             if (!panel) return;
 
             const groupExpanded = button?.getAttribute('aria-expanded') === 'true';
-            const panelVisible = iconRailMode || groupExpanded;
+            const panelVisible = iconRailMode
+                ? group.classList.contains('is-flyout-open')
+                : groupExpanded;
             panel.setAttribute('aria-hidden', panelVisible ? 'false' : 'true');
             panel.inert = !panelVisible;
         });
     };
+
+    // A collapsed desktop rail uses floating section menus instead of opening
+    // module links inside the sidebar. The panel is temporarily portaled to
+    // <body> so the sidebar's scroll container can never clip the flyout.
+    let closeSidebarFlyout = () => {};
 
     const closeMobileSidebar = () => {
         sidebar?.classList.remove('open');
@@ -76,10 +83,20 @@
         if (toggleIcon) toggleIcon.className = 'bi bi-x-lg';
     };
 
+    const syncGroupToggleExpandedAttributes = (iconRailMode) => {
+        sidebar?.querySelectorAll('[data-sidebar-group]').forEach((group) => {
+            const button = group.querySelector(':scope > .nav-group-toggle');
+            const expanded = !iconRailMode && !group.classList.contains('is-collapsed');
+            button?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        });
+    };
+
     const applyDesktopSidebarState = (collapsed) => {
         if (!appShell || !desktopMedia.matches) return;
 
+        closeSidebarFlyout();
         appShell.classList.toggle('sidebar-collapsed', collapsed);
+        syncGroupToggleExpandedAttributes(collapsed);
         sidebar?.classList.remove('open');
         backdrop?.classList.remove('show');
         document.body.classList.remove('sidebar-open');
@@ -101,7 +118,9 @@
         if (desktopMedia.matches) {
             applyDesktopSidebarState(readCollapsedPreference());
         } else {
+            closeSidebarFlyout();
             appShell.classList.remove('sidebar-collapsed');
+            syncGroupToggleExpandedAttributes(false);
             closeMobileSidebar();
             syncGroupAccessibilityState();
         }
@@ -168,6 +187,185 @@
         };
 
         const sidebarGroups = Array.from(sidebar.querySelectorAll('[data-sidebar-group]'));
+
+        let activeFlyoutGroup = null;
+        let activeFlyoutPanel = null;
+        let flyoutPinned = false;
+        let flyoutOpenTimer = null;
+        let flyoutCloseTimer = null;
+
+        const isIconRailMode = () => Boolean(
+            desktopMedia.matches && appShell.classList.contains('sidebar-collapsed')
+        );
+
+        const clearFlyoutTimers = () => {
+            if (flyoutOpenTimer) window.clearTimeout(flyoutOpenTimer);
+            if (flyoutCloseTimer) window.clearTimeout(flyoutCloseTimer);
+            flyoutOpenTimer = null;
+            flyoutCloseTimer = null;
+        };
+
+        closeSidebarFlyout = () => {
+            clearFlyoutTimers();
+            if (!activeFlyoutGroup || !activeFlyoutPanel) return;
+
+            const group = activeFlyoutGroup;
+            const panel = activeFlyoutPanel;
+            const button = group.querySelector(':scope > .nav-group-toggle');
+
+            group.classList.remove('is-flyout-open');
+            panel.classList.remove('sidebar-module-flyout');
+            panel.setAttribute('aria-hidden', 'true');
+            panel.inert = true;
+            panel.style.removeProperty('left');
+            panel.style.removeProperty('top');
+            group.appendChild(panel);
+
+            activeFlyoutGroup = null;
+            activeFlyoutPanel = null;
+            flyoutPinned = false;
+            button?.setAttribute('aria-expanded', 'false');
+            syncGroupAccessibilityState();
+        };
+
+        const positionSidebarFlyout = () => {
+            if (!activeFlyoutGroup || !activeFlyoutPanel || !isIconRailMode()) return;
+
+            const button = activeFlyoutGroup.querySelector(':scope > .nav-group-toggle');
+            if (!button) return;
+
+            const bounds = button.getBoundingClientRect();
+            const panel = activeFlyoutPanel;
+            const maxTop = Math.max(12, window.innerHeight - panel.offsetHeight - 12);
+            const top = Math.min(Math.max(12, bounds.top - 6), maxTop);
+
+            panel.style.left = `${Math.round(bounds.right + 10)}px`;
+            panel.style.top = `${Math.round(top)}px`;
+        };
+
+        const openSidebarFlyout = (group, pin = false) => {
+            if (!isIconRailMode()) return;
+
+            const button = group.querySelector(':scope > .nav-group-toggle');
+            const panel = group.querySelector(':scope > .nav-group-panel');
+            if (!button || !panel) return;
+
+            clearFlyoutTimers();
+
+            if (activeFlyoutGroup && activeFlyoutGroup !== group) {
+                closeSidebarFlyout();
+            }
+
+            if (activeFlyoutGroup === group) {
+                if (pin) flyoutPinned = true;
+                positionSidebarFlyout();
+                return;
+            }
+
+            activeFlyoutGroup = group;
+            activeFlyoutPanel = panel;
+            flyoutPinned = pin;
+            group.classList.add('is-flyout-open');
+            button.setAttribute('aria-expanded', 'true');
+            panel.classList.add('sidebar-module-flyout');
+            panel.setAttribute('aria-hidden', 'false');
+            panel.inert = false;
+            document.body.appendChild(panel);
+            hideTooltip();
+            positionSidebarFlyout();
+            syncGroupAccessibilityState();
+        };
+
+        const scheduleFlyoutClose = () => {
+            if (flyoutPinned || !activeFlyoutGroup) return;
+            if (flyoutCloseTimer) window.clearTimeout(flyoutCloseTimer);
+
+            flyoutCloseTimer = window.setTimeout(() => {
+                const button = activeFlyoutGroup?.querySelector(':scope > .nav-group-toggle');
+                const pointerStillInside = activeFlyoutPanel?.matches(':hover')
+                    || button?.matches(':hover');
+                const focusStillInside = activeFlyoutPanel?.contains(document.activeElement)
+                    || document.activeElement === button;
+
+                if (!pointerStillInside && !focusStillInside) closeSidebarFlyout();
+            }, 190);
+        };
+
+        // Hover previews the section; clicking pins it open until dismissed.
+        sidebarGroups.forEach((group) => {
+            const button = group.querySelector(':scope > .nav-group-toggle');
+            const panel = group.querySelector(':scope > .nav-group-panel');
+            if (!button || !panel) return;
+
+            button.addEventListener('pointerenter', () => {
+                if (!isIconRailMode() || flyoutPinned) return;
+                if (flyoutOpenTimer) window.clearTimeout(flyoutOpenTimer);
+                flyoutOpenTimer = window.setTimeout(() => openSidebarFlyout(group), 75);
+            });
+            button.addEventListener('pointerleave', () => {
+                if (flyoutOpenTimer) window.clearTimeout(flyoutOpenTimer);
+                flyoutOpenTimer = null;
+                scheduleFlyoutClose();
+            });
+            button.addEventListener('focus', () => {
+                if (isIconRailMode()) openSidebarFlyout(group);
+            });
+            button.addEventListener('blur', scheduleFlyoutClose);
+
+            button.addEventListener('click', (event) => {
+                if (!isIconRailMode()) return;
+                event.preventDefault();
+                clearFlyoutTimers();
+
+                if (activeFlyoutGroup === group && flyoutPinned) {
+                    closeSidebarFlyout();
+                    return;
+                }
+
+                openSidebarFlyout(group, true);
+
+                // A keyboard-triggered activation should move directly into
+                // the floating menu, rather than leaving focus on an icon.
+                if (event.detail === 0) {
+                    activeFlyoutPanel?.querySelector('a.nav-link')?.focus();
+                }
+            });
+
+            panel.addEventListener('pointerenter', clearFlyoutTimers);
+            panel.addEventListener('pointerleave', scheduleFlyoutClose);
+            panel.addEventListener('focusin', clearFlyoutTimers);
+            panel.addEventListener('focusout', scheduleFlyoutClose);
+            panel.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeSidebarFlyout();
+                    button.focus();
+                }
+            });
+        });
+
+        document.addEventListener('pointerdown', (event) => {
+            if (!activeFlyoutGroup) return;
+            if (activeFlyoutGroup.contains(event.target) || activeFlyoutPanel?.contains(event.target)) return;
+            closeSidebarFlyout();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && activeFlyoutGroup) {
+                const button = activeFlyoutGroup.querySelector(':scope > .nav-group-toggle');
+                closeSidebarFlyout();
+                button?.focus();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (activeFlyoutGroup) positionSidebarFlyout();
+        }, { passive: true });
+
+        sidebar.querySelector('.sidebar-scroll')?.addEventListener('scroll', () => {
+            hideTooltip();
+            if (activeFlyoutGroup) closeSidebarFlyout();
+        }, { passive: true });
+
         // The group containing the active route is the only section open on page load.
         // This intentionally takes precedence over stale per-group preferences so the
         // sidebar always reflects the module the user is currently viewing.
@@ -181,6 +379,7 @@
             setGroupExpanded(group, group === activeGroup);
 
             button.addEventListener('click', () => {
+                if (isIconRailMode()) return;
                 const expanded = button.getAttribute('aria-expanded') === 'true';
                 const nextExpanded = !expanded;
 
@@ -199,6 +398,11 @@
                 syncGroupAccessibilityState();
             });
         });
+        if (isIconRailMode()) {
+            sidebarGroups.forEach((group) => {
+                group.querySelector(':scope > .nav-group-toggle')?.setAttribute('aria-expanded', 'false');
+            });
+        }
         // Restore group-level accessibility after saved states have been applied.
         syncGroupAccessibilityState();
 
@@ -261,6 +465,9 @@
         };
 
         sidebar.querySelectorAll('.nav-link').forEach((link) => {
+            // Group links are shown with their labels inside the flyout and do
+            // not need the compact icon-rail tooltip treatment.
+            if (link.closest('.nav-group-panel')) return;
             const label = link.querySelector(':scope > span:not(.nav-count)')?.textContent?.trim();
             if (!label) return;
 
@@ -274,15 +481,10 @@
 
         sidebar.querySelectorAll('.nav-group-toggle').forEach((button) => {
             button.setAttribute('aria-label', `Toggle ${button.dataset.sidebarTooltip || 'module'} menu`);
-            button.addEventListener('pointerenter', () => showSidebarTooltip(button));
-            button.addEventListener('pointerleave', hideTooltip);
-            button.addEventListener('focus', () => showSidebarTooltip(button));
-            button.addEventListener('blur', hideTooltip);
         });
 
         // Keep the floating tooltip anchored correctly and prevent stale tooltips
         // from remaining visible after the sidebar or viewport moves.
-        sidebar.querySelector('.sidebar-scroll')?.addEventListener('scroll', hideTooltip, { passive: true });
         window.addEventListener('resize', hideTooltip, { passive: true });
 
         // Close the off-canvas drawer immediately after a navigation choice on

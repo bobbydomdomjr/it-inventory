@@ -172,7 +172,7 @@
      <button type="button" class="nav-group-toggle" id="sidebarGroup<?php echo e($groupTitle); ?>Toggle" aria-expanded="true" aria-controls="sidebarGroup<?php echo e($groupTitle); ?>" data-sidebar-tooltip="<?php echo e(ucfirst($group['label'])); ?>">
       <span class="nav-group-label"><i class="bi <?php echo e($group['icon']); ?>" aria-hidden="true"></i><span class="nav-label"><?php echo e($group['label']); ?></span></span><i class="bi bi-chevron-down nav-group-chevron" aria-hidden="true"></i>
      </button>
-     <div class="nav-group-panel" id="sidebarGroup<?php echo e($groupTitle); ?>" aria-labelledby="sidebarGroup<?php echo e($groupTitle); ?>Toggle">
+     <div class="nav-group-panel" id="sidebarGroup<?php echo e($groupTitle); ?>" aria-labelledby="sidebarGroup<?php echo e($groupTitle); ?>Toggle" data-sidebar-group-label="<?php echo e($group['label']); ?>">
       <div class="nav-group-inner">
        <?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <a class="nav-link <?php echo e($item['active'] ? 'active' : ''); ?>" href="<?php echo e($item['href']); ?>"><i class="bi <?php echo e($item['icon']); ?>"></i><span><?php echo e($item['label']); ?></span><?php if($item['badge'] > 0): ?><span class="nav-count"><?php echo e($item['badge'] > 99 ? '99+' : $item['badge']); ?></span><?php endif; ?></a>

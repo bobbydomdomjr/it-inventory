@@ -1,0 +1,11 @@
+<?php $__env->startSection('title','Audit trail'); ?>
+<?php $__env->startSection('breadcrumb','Audit trail'); ?>
+<?php $__env->startSection('content'); ?>
+<div class="page-heading"><div><div class="eyebrow">GOVERNANCE</div><h1>Audit trail</h1><p>Recorded user actions and changes across inventory operations.</p></div></div>
+<div class="panel"><div class="panel-header"><div><h2>Activity history</h2><p><?php echo e($logs->total()); ?> recorded events</p></div><span class="small-muted">Newest first</span></div><div class="table-responsive"><table class="table data-table align-middle mb-0"><thead><tr><th>Event</th><th>Module</th><th>User</th><th>Record</th><th>IP address</th><th>Date & time</th></tr></thead><tbody>
+<?php $__empty_1 = true; $__currentLoopData = $logs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $log): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><tr><td><span class="event-name"><?php echo e(str_replace('_',' ',$log->action)); ?></span></td><td><?php echo e(ucfirst($log->module ?? 'system')); ?></td><td><?php echo e($log->user?->name ?? 'System'); ?></td><td class="mono small"><?php echo e(class_basename($log->record_type ?? '')); ?><?php echo e($log->record_id ? ' #'.$log->record_id : ''); ?></td><td class="mono small"><?php echo e($log->ip_address ?? '—'); ?></td><td><?php echo e($log->created_at?->format(config('app.date_format', 'd M Y').' '.config('app.time_format', 'H:i'))); ?></td></tr>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><tr><td colspan="6" class="empty-state">No activity has been recorded.</td></tr><?php endif; ?>
+</tbody></table></div><div class="panel-footer"><?php echo e($logs->links()); ?></div></div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\it-inventory\resources\views/admin/activity.blade.php ENDPATH**/ ?>

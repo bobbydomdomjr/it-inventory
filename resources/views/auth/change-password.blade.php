@@ -20,7 +20,6 @@
                     <input class="form-control" type="password" id="password" name="password" minlength="12" autocomplete="new-password" required>
                     <div class="form-text">At least 12 characters, including uppercase, lowercase, and a number.</div>
                     @error('password')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-def
                 </div>
                 <div class="mb-4">
                     <label class="form-label" for="password_confirmation">Confirm new password</label>
