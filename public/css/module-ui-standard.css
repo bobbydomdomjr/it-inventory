@@ -1,0 +1,418 @@
+/* Shared module UI standard: aligned to the compact Assets and Categories registers. */
+:root{--module-ink:#344054;--module-muted:#667085;--module-line:#e4e7ec;--module-soft:#f8f9fa;--module-blue:#347fa7;--module-radius:4px}
+.page-content{padding-top:22px;padding-bottom:30px}
+.page-heading{margin-bottom:12px;align-items:center;gap:12px}
+.page-heading h1,.asset-register-heading h1{font-size:20px;line-height:1.25;letter-spacing:-.25px;margin:2px 0 3px;font-weight:650;color:var(--module-ink)}
+.page-heading p,.asset-register-heading p{font-size:11px;margin:0;color:#7b8794}
+.page-heading .eyebrow,.eyebrow{font-size:10px;letter-spacing:.06em;color:#8793a1;font-weight:700}
+.heading-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.heading-actions .btn,.btn{min-height:29px;padding:4px 9px;border-radius:3px;font-size:11px;font-weight:600;box-shadow:none!important}
+.btn-primary{background:var(--module-blue);border-color:var(--module-blue)}
+.btn-primary:hover,.btn-primary:focus{background:#286b91;border-color:#286b91}
+.btn-outline-primary{color:var(--module-blue);border-color:#b9ccd8}
+.btn-light,.btn-outline-secondary{border-color:#d0d5dd;color:#526273;background:#fff}
+.form-label{font-size:10px;font-weight:600;color:#667085;margin-bottom:3px}
+.form-control,.form-select{height:29px;min-height:29px;padding:3px 8px;border:1px solid #d0d5dd;border-radius:3px;font-size:11px;color:#475467;box-shadow:none!important}
+textarea.form-control{height:auto;min-height:58px}
+.form-control:focus,.form-select:focus{border-color:#6c9fbd;box-shadow:0 0 0 2px rgba(52,127,167,.08)!important}
+.panel,.asset-register-panel,.asset-list-panel,.category-list-panel{border:1px solid var(--module-line);border-radius:5px;box-shadow:0 1px 2px rgba(16,24,40,.035);background:#fff;overflow:hidden}
+.panel-header{padding:10px 12px;border-bottom:1px solid #e6e9ed}
+.panel-header h2{font-size:12px;color:var(--module-ink);font-weight:650}
+.panel-header p{font-size:10px;color:#7b8794;margin-top:3px}
+.table,.data-table,.category-register-table{font-size:11px;color:#667085;margin-bottom:0}
+.data-table thead th,.category-register-table thead th{height:31px;padding:6px 7px;background:#f8f9fa;color:#46515d;font-size:10px;font-weight:700;white-space:nowrap;border-top:0;border-bottom:1px solid #dfe4e9;vertical-align:middle}
+.data-table tbody td,.category-register-table tbody td{padding:4px 7px;border-bottom:1px solid #eef0f2;color:#667085;vertical-align:middle}
+.data-table tbody tr:nth-child(even),.category-register-table tbody tr:nth-child(even){background:#fafafa}
+.data-table tbody tr:hover,.category-register-table tbody tr:hover{background:#f1f7fb}
+.data-table tbody tr:last-child td,.category-register-table tbody tr:last-child td{border-bottom:0}
+.table-sub,.small-muted{font-size:10px;color:#8793a1}
+.status-pill,.category-status,.category-type-pill{display:inline-flex;align-items:center;border-radius:3px;padding:2px 6px;font-size:9px;font-weight:600;white-space:nowrap}
+.status-pill.available,.status-pill.active,.status-pill.completed,.status-pill.verified,.status-pill.resolved,.status-pill.approved,.category-status.active{background:#e8f4ee;color:#287b59}
+.status-pill.assigned,.status-pill.in_progress,.status-pill.pending,.status-pill.open,.status-pill.maintenance{background:#eaf1fa;color:#315f9f}
+.status-pill.defective,.status-pill.lost,.status-pill.rejected,.status-pill.closed,.status-pill.inactive,.status-pill.retired,.category-status.inactive{background:#faebeb;color:#a64b4b}
+.status-pill.waiting,.status-pill.fair,.status-pill.high,.status-pill.urgent{background:#fbf2e4;color:#a66d1d}
+.pagination{margin:0;gap:2px}.pagination .page-link{min-width:25px;height:25px;padding:4px 7px;border:1px solid #e0e4e9;border-radius:3px!important;font-size:10px;line-height:15px;text-align:center;color:#475467}.pagination .page-item.active .page-link{background:var(--module-blue);border-color:var(--module-blue)}
+.empty-state{padding:30px 12px!important;text-align:center!important;color:#929ba6!important;font-size:11px}
+/* Assets and Categories remain the visual reference, with shared spacing and controls. */
+.asset-list-page,.category-list-page{margin:0;font-size:12px;color:var(--module-ink)}
+.asset-list-panel,.category-list-panel{border-radius:5px}
+.asset-list-toolbar,.category-list-toolbar{min-height:43px;padding:6px 9px;gap:6px}
+.asset-secondary-bar,.category-secondary-bar{min-height:36px;padding:5px 9px}
+.asset-quick-search input,.category-quick-search input{height:29px;font-size:11px;border-radius:3px 0 0 3px}
+.asset-quick-search button,.category-quick-search button{height:29px;width:29px;background:var(--module-blue);border-color:var(--module-blue);border-radius:0 3px 3px 0}
+.asset-mini-btn,.category-mini-btn,.asset-toolbar-select,.category-filter-select{height:29px;min-height:29px;border-radius:3px;font-size:11px}
+.asset-mini-btn.primary,.category-mini-btn.primary{background:var(--module-blue);border-color:var(--module-blue)}
+.asset-register-table,.category-register-table{font-size:11px}
+.asset-register-table thead th,.category-register-table thead th{height:31px;padding:6px 7px}
+.asset-register-table tbody td,.category-register-table tbody td{height:33px;padding:3px 7px}
+.asset-icon-action,.category-icon-action{width:23px;height:23px;border:1px solid #e0e5eb;border-radius:3px;background:#fff;color:#64748b}
+.asset-icon-action.clone,.asset-icon-action.edit,.asset-icon-action.archive,.category-icon-action.edit,.category-icon-action.archive{background:#fff;color:#64748b}
+.asset-icon-action:hover,.category-icon-action:hover{background:#f0f4f9;color:var(--module-blue);border-color:#cfdae8}
+/* Assignment and stock modules use the same register, form, table and pagination language. */
+.asset-register-heading{margin-bottom:12px}
+.asset-register-panel{border-radius:5px}
+.asset-register-panel .data-table thead th{height:31px;padding:6px 7px;font-size:10px}
+.asset-register-panel .data-table tbody td{padding:4px 7px;font-size:11px}
+.ledger-filter{padding:8px 10px!important;background:#fbfcfd!important;border-bottom:1px solid #e6e9ed!important}
+.ledger-filter .form-label{font-size:10px!important;margin-bottom:3px!important;color:#667085!important}
+.ledger-filter .form-control,.ledger-filter .form-select{height:29px!important;min-height:29px!important;padding:3px 8px!important;font-size:11px!important;border-radius:3px!important}
+.ledger-filter .btn{height:29px!important;min-height:29px!important;padding:4px 9px!important;font-size:11px!important}
+.ledger-table th{font-size:10px!important;padding:6px 7px!important;background:#f8f9fa!important;color:#46515d!important}
+.ledger-table td{font-size:11px!important;padding:4px 7px!important}
+.stock-summary-row .metric-card{min-height:0;padding:10px 12px;border:1px solid #e4e7ec;border-radius:5px;box-shadow:none}
+.stock-summary-row .metric-value{font-size:19px!important;margin-top:6px}
+.stock-summary-row .metric-top{font-size:10px}
+.stock-summary-row .metric-icon{width:27px;height:27px}
+@media(max-width:900px){.page-heading{align-items:flex-start}.heading-actions{justify-content:flex-start}.ledger-filter .filter-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:560px){.page-content{padding:16px 12px 24px}.ledger-filter .filter-row{grid-template-columns:1fr!important}.ledger-filter .filter-actions{justify-content:flex-start}}
+
+/* Color-coded action icons: consistent meaning across every module. */
+:root{
+  --action-view:#3478b8;--action-create:#269568;--action-edit:#c58a24;
+  --action-delete:#c34f4f;--action-transfer:#7956b5;--action-export:#168b83;
+  --action-print:#64748b;--action-info:#4b83a8;
+}
+/* Register row actions follow the same order and meaning in Assets, Categories,
+   Assignments and Stocks: view, duplicate/clone, edit, archive/delete. */
+.asset-register-panel .table-actions>a:nth-child(1) i,
+.asset-register-panel .table-actions>a[aria-label*="View"] i,
+.asset-register-panel .table-actions>a[title="View"] i,
+.asset-register-panel .table-actions>a[aria-label*="Details"] i,
+.asset-register-panel .table-actions>a[title*="Details"] i,
+.asset-icon-action.view i,.category-icon-action.view i{color:var(--action-view)!important}
+.asset-register-panel .table-actions>a[aria-label*="Clone"] i,
+.asset-register-panel .table-actions>a[title*="Clone"] i,
+.asset-register-panel .table-actions>a[aria-label*="Duplicate"] i,
+.asset-register-panel .table-actions>a[title*="Duplicate"] i{color:var(--action-transfer)!important}
+.asset-register-panel .table-actions>a[aria-label*="Edit"] i,
+.asset-register-panel .table-actions>a[title*="Edit"] i,
+.asset-register-panel .table-actions .asset-action-button.edit i,
+.asset-icon-action.edit i,.category-icon-action.edit i{color:var(--action-edit)!important}
+.asset-register-panel .table-actions .asset-action-button.archive i,
+.asset-register-panel .table-actions button[aria-label*="Delete"] i,
+.asset-register-panel .table-actions button[title*="Delete"] i,
+.asset-register-panel .table-actions button[aria-label*="Archive"] i,
+.asset-register-panel .table-actions button[title*="Archive"] i,
+.asset-icon-action.archive i,.category-icon-action.archive i{color:var(--action-delete)!important}
+/* Existing action buttons without explicit semantic classes. */
+.asset-action-button.archive i{color:var(--action-delete)!important}
+.asset-icon-action.clone i{color:var(--action-transfer)!important}
+/* Common action icons in buttons and links throughout the application. */
+.btn i.bi-plus,.btn i.bi-plus-lg,.btn i.bi-plus-circle,.btn i.bi-person-plus,
+.btn i.bi-cart-plus{color:var(--action-create)}
+.btn i.bi-pencil,.btn i.bi-pencil-square,.btn i.bi-pencil-fill{color:var(--action-edit)}
+.btn i.bi-trash,.btn i.bi-trash3,.btn i.bi-archive,.btn i.bi-x-lg{color:var(--action-delete)}
+.btn i.bi-eye,.btn i.bi-eye-fill,.btn i.bi-search,.btn i.bi-info-circle{color:var(--action-view)}
+.btn i.bi-copy,.btn i.bi-arrow-left-right,.btn i.bi-arrow-repeat,
+.btn i.bi-person-check,.btn i.bi-person-plus-fill{color:var(--action-transfer)}
+.btn i.bi-check,.btn i.bi-check-lg,.btn i.bi-check2,.btn i.bi-check-circle,
+.btn i.bi-check-circle-fill,.btn i.bi-check2-square{color:var(--action-create)}
+.btn i.bi-download,.btn i.bi-file-earmark-arrow-down,.btn i.bi-filetype-csv,
+.btn i.bi-file-earmark-excel,.btn i.bi-upload{color:var(--action-export)}
+.btn i.bi-printer,.btn i.bi-clipboard2-check,.btn i.bi-journal-text{color:var(--action-print)}
+.btn i.bi-cart-plus,.btn i.bi-box-arrow-in-down,.btn i.bi-box-arrow-up{color:var(--action-export)}
+/* Primary buttons retain white icon contrast; color coding is used on neutral/outline actions. */
+.btn-primary i,.btn-danger i,.btn-success i{color:#fff!important}
+.btn-light:hover i,.btn-outline-secondary:hover i,.btn-outline-primary:hover i{filter:brightness(.88)}
+/* Sidebar icon size, color and row dimensions are defined once, at the end of this file. */
+
+/* -------------------------------------------------------------------------
+   Refined application sidebar
+   - Compact, consistently aligned navigation rows
+   - Clear module hierarchy and quieter active-state treatment
+   - Shared rules apply whether Vite assets or public assets are served
+   ------------------------------------------------------------------------- */
+.sidebar {
+    width: 248px;
+    background: linear-gradient(180deg, #132f50 0%, #102741 100%);
+}
+.main-area { margin-left: 248px; }
+.brand {
+    height: 70px;
+    padding-inline: 15px;
+    gap: 10px;
+    border-bottom-color: rgba(220, 232, 246, .08);
+}
+.brand-mark { width: 34px; height: 34px; flex: 0 0 34px; }
+.brand-copy strong { font-size: 13px; letter-spacing: .05px; }
+.brand-copy span { font-size: 10px; margin-top: 2px; }
+.sidebar-scroll { padding: 8px 9px 14px; }
+.sidebar-group { margin: 2px 0 4px; }
+.nav-group-toggle {
+    min-height: 31px;
+    padding: 7px 9px 4px;
+    gap: 8px;
+    border-radius: 5px;
+}
+.nav-group-label { gap: 8px; }
+.nav-group-toggle .nav-label {
+    font-size: 8px;
+    letter-spacing: 1.05px;
+    line-height: 1.25;
+    color: #93a7bf;
+}
+.nav-group-chevron { font-size: 9px; color: #7189a5; }
+.nav-group-toggle:hover .nav-label,
+.nav-group-toggle:focus-visible .nav-label { color: #d8e5f3; }
+.nav-group-inner { padding: 1px 0 2px; }
+.sidebar .nav-link {
+    min-height: 32px;
+    gap: 9px;
+    margin: 1px 0;
+    padding: 5px 9px;
+    border-radius: 5px;
+    color: #bdcada;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.25;
+}
+.sidebar .nav-link:hover {
+    background: rgba(221, 234, 248, .075);
+    color: #fff;
+}
+.sidebar .nav-link.active {
+    padding-left: 9px;
+    border: 0;
+    background: rgba(89, 139, 193, .23);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: none;
+}
+.sidebar .nav-count {
+    min-width: 16px;
+    height: 16px;
+    padding-inline: 4px;
+    background: rgba(190, 216, 244, .18);
+    color: #e2efff;
+    font-size: 8px;
+}
+.sidebar .nav-link:focus-visible,
+.sidebar .nav-group-toggle:focus-visible {
+    outline: 2px solid rgba(177, 208, 242, .7);
+    outline-offset: 1px;
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .app-shell:not(.sidebar-collapsed) .sidebar { width: 232px; }
+    .app-shell:not(.sidebar-collapsed) .main-area { margin-left: 232px; }
+}
+@media (min-width: 992px) {
+    .app-shell.sidebar-collapsed .brand { height: 68px; justify-content: center; padding-inline: 8px; }
+    .app-shell.sidebar-collapsed .sidebar-scroll { padding: 8px 7px 14px; }
+    .app-shell.sidebar-collapsed .nav-link { min-height: 40px; margin: 2px 0; }
+    .app-shell.sidebar-collapsed .nav-group-toggle { min-height: 38px; margin: 3px auto 2px; }
+}
+@media (max-width: 991.98px) {
+    .sidebar { width: 260px; }
+    .main-area { margin-left: 0; }
+    .brand { height: 66px; }
+    .sidebar-scroll { padding: 9px 10px 16px; }
+    .nav-group-toggle { min-height: 32px; padding-top: 8px; }
+    .sidebar .nav-link { min-height: 36px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sidebar, .sidebar .nav-link { transition: none !important; }
+}
+/* Avoid a flash of every menu group before saved/default states are applied. */
+.sidebar-state-initializing .sidebar-group > .nav-group-panel {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: hidden;
+    transition: none !important;
+}
+.sidebar-group.has-active > .nav-group-toggle .nav-label { color: #c7d8eb; }
+
+
+/* Sidebar logo: use the uploaded image exactly as provided.
+   Keep the wrapper transparent; do not tint, invert, fade, or blend the logo. */
+.sidebar .brand-mark--image {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    flex: 0 0 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    mix-blend-mode: normal !important;
+}
+.sidebar .brand-mark--image img {
+    display: block !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    object-fit: contain !important;
+    -webkit-filter: none !important;
+    filter: none !important;
+    -webkit-mix-blend-mode: normal !important;
+    mix-blend-mode: normal !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.app-shell.sidebar-collapsed .brand-mark--image {
+    width: 40px !important;
+    height: 40px !important;
+    flex-basis: 40px !important;
+}
+
+
+/* Sidebar interaction: the brand area is the desktop collapse/expand control. */
+.brand { cursor: default; }
+.brand-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.brand-trigger:focus-visible {
+    outline: 2px solid rgba(177, 208, 242, .75);
+    outline-offset: -3px;
+    border-radius: 4px;
+}
+.brand-trigger .brand-mark--image,
+.brand-trigger .brand-mark { pointer-events: none; }
+@media (min-width: 992px) {
+    /* No desktop toggle in the topbar; the logo controls the sidebar instead. */
+    .topbar .sidebar-toggle { display: none !important; }
+    .app-shell.sidebar-collapsed .brand-trigger {
+        justify-content: center;
+        gap: 0;
+    }
+}
+@media (max-width: 991.98px) {
+    /* Keep a menu opener on mobile, where the logo is hidden with the drawer. */
+    .topbar .sidebar-toggle { display: inline-flex !important; }
+    .brand-trigger { cursor: pointer; }
+}
+
+
+/* =========================================================================
+   Sidebar icon + row normalization (single source of truth).
+   Every nav row and every section row gets the same box, every icon the same
+   size, in both expanded and collapsed states. Keep this block LAST.
+   ========================================================================= */
+
+:root {
+    --sb-icon-box: 20px;
+    --sb-icon-size: 15px;            /* expanded */
+    --sb-icon-size-collapsed: 17px;  /* collapsed */
+    --sb-pill-size: 42px;            /* collapsed pill (square) */
+}
+
+/* ---- Icons: any element type, any row type, one size ---- */
+.sidebar .nav-link > :is(i, svg, img),
+.sidebar .nav-group-label > :is(i, svg, img) {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: var(--sb-icon-box) !important;
+    min-width: var(--sb-icon-box) !important;
+    height: var(--sb-icon-box) !important;
+    flex: 0 0 var(--sb-icon-box) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: var(--sb-icon-size) !important;
+    line-height: 1 !important;
+    color: #fff !important;
+}
+.sidebar .nav-link > :is(svg, img),
+.sidebar .nav-group-label > :is(svg, img) {
+    width: var(--sb-icon-size) !important;
+    height: var(--sb-icon-size) !important;
+    min-width: 0 !important;
+    flex-basis: var(--sb-icon-size) !important;
+}
+.sidebar .nav-link > i::before,
+.sidebar .nav-group-label > i::before {
+    font-size: inherit !important;
+    line-height: 1 !important;
+    vertical-align: 0 !important;
+}
+
+/* ---- Collapsed sidebar: identical square pills, centered ---- */
+@media (min-width: 992px) {
+    .app-shell.sidebar-collapsed .sidebar .sidebar-scroll {
+        padding-inline: 0 !important;
+    }
+
+    .app-shell.sidebar-collapsed .sidebar .nav-link,
+    .app-shell.sidebar-collapsed .sidebar .nav-group-toggle {
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative;
+        width: var(--sb-pill-size) !important;
+        min-width: var(--sb-pill-size) !important;
+        max-width: var(--sb-pill-size) !important;
+        height: var(--sb-pill-size) !important;
+        min-height: var(--sb-pill-size) !important;
+        margin: 2px auto !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        border: 0 !important;
+        border-radius: 8px !important;
+    }
+
+    .app-shell.sidebar-collapsed .sidebar .nav-group-label {
+        justify-content: center !important;
+        gap: 0 !important;
+        width: auto !important;
+    }
+
+    .app-shell.sidebar-collapsed .sidebar .nav-link > :is(i, svg, img),
+    .app-shell.sidebar-collapsed .sidebar .nav-group-label > :is(i, svg, img) {
+        font-size: var(--sb-icon-size-collapsed) !important;
+    }
+    .app-shell.sidebar-collapsed .sidebar .nav-link > :is(svg, img),
+    .app-shell.sidebar-collapsed .sidebar .nav-group-label > :is(svg, img) {
+        width: var(--sb-icon-size-collapsed) !important;
+        height: var(--sb-icon-size-collapsed) !important;
+        flex-basis: var(--sb-icon-size-collapsed) !important;
+    }
+
+    /* Hide text/chevron so they can never widen a pill */
+    .app-shell.sidebar-collapsed .sidebar .nav-link > span:not(.nav-count),
+    .app-shell.sidebar-collapsed .sidebar .nav-label,
+    .app-shell.sidebar-collapsed .sidebar .nav-group-chevron {
+        display: none !important;
+    }
+    .app-shell.sidebar-collapsed .sidebar .nav-count {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        margin: 0;
+    }
+}

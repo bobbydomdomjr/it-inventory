@@ -1,0 +1,83 @@
+<?php $__env->startSection('title','Software license catalog'); ?>
+<?php $__env->startSection('breadcrumb','Software & Licenses'); ?>
+<?php $__env->startSection('content'); ?>
+<div class="page-heading">
+    <div><div class="eyebrow">SOFTWARE ASSET MANAGEMENT</div><h1>Software license catalog</h1><p>Manage software products, entitlements, seat allocation, renewal history and expiry exposure.</p></div>
+</div>
+
+<?php if(auth()->user()->hasPermission('software.manage')): ?>
+<div class="panel mb-3">
+    <div class="panel-header"><div><h2>Register software product</h2><p>Create a normalized software record before registering license entitlements.</p></div></div>
+    <form method="POST" action="<?php echo e(route('software-catalog.store')); ?>" class="p-3">
+        <?php echo csrf_field(); ?>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4"><label class="form-label" for="software-name">Software name</label><input id="software-name" name="name" class="form-control" maxlength="190" required></div>
+            <div class="col-md-2"><label class="form-label" for="software-version">Version</label><input id="software-version" name="version" class="form-control" maxlength="80"></div>
+            <div class="col-md-3"><label class="form-label" for="software-publisher">Publisher</label><input id="software-publisher" name="publisher" class="form-control" maxlength="150"></div>
+            <div class="col-md-3"><label class="form-label" for="software-category">Category</label><select id="software-category" name="category_id" class="form-select"><option value="">No category</option><?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($category->id); ?>"><?php echo e($category->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div>
+            <div class="col-12"><label class="form-label" for="software-description">Description</label><textarea id="software-description" name="description" class="form-control" rows="2" maxlength="5000"></textarea></div>
+            <div class="col-12 text-end"><button class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Register software</button></div>
+        </div>
+    </form>
+</div>
+<?php endif; ?>
+
+<div class="d-flex justify-content-between align-items-center mb-2"><div><h2 class="h6 fw-bold mb-1">Registered software</h2><p class="small text-secondary mb-0"><?php echo e($software->count()); ?> software product(s) · <?php echo e($software->sum('licenses_count')); ?> license entitlement(s)</p></div></div>
+<div class="row g-3">
+<?php $__empty_1 = true; $__currentLoopData = $software; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+    <div class="col-12">
+        <section class="panel">
+            <div class="panel-header flex-wrap">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="record-symbol"><i class="bi bi-window-stack"></i></div>
+                    <div><h2><?php echo e($product->name); ?> <?php if($product->version): ?><span class="text-secondary fw-normal"><?php echo e($product->version); ?></span><?php endif; ?></h2><p><?php echo e($product->publisher ?: 'Publisher not specified'); ?> · <?php echo e($product->category?->name ?: 'Uncategorized'); ?></p></div>
+                </div>
+                <?php if(auth()->user()->hasPermission('software.manage')): ?>
+                <details><summary class="btn btn-sm btn-outline-secondary">Edit software details</summary>
+                    <form method="POST" action="<?php echo e(route('software-catalog.update',$product)); ?>" class="p-3 border rounded mt-2 bg-white">
+                        <?php echo csrf_field(); ?> <?php echo method_field('PUT'); ?>
+                        <div class="row g-2"><div class="col-md-4"><label class="form-label">Software name</label><input name="name" class="form-control" required value="<?php echo e($product->name); ?>"></div><div class="col-md-2"><label class="form-label">Version</label><input name="version" class="form-control" value="<?php echo e($product->version); ?>"></div><div class="col-md-3"><label class="form-label">Publisher</label><input name="publisher" class="form-control" value="<?php echo e($product->publisher); ?>"></div><div class="col-md-3"><label class="form-label">Category</label><select name="category_id" class="form-select"><option value="">No category</option><?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($category->id); ?>" <?php if($product->category_id===$category->id): echo 'selected'; endif; ?>><?php echo e($category->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div><div class="col-12"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"><?php echo e($product->description); ?></textarea></div><div class="col-12 text-end"><button class="btn btn-sm btn-primary">Save changes</button></div></div>
+                    </form>
+                </details>
+                <?php endif; ?>
+            </div>
+            <div class="p-3">
+                <?php $__empty_2 = true; $__currentLoopData = $product->licenses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $license): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_2 = false; ?>
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                            <div><strong class="small text-dark"><?php echo e(ucfirst(str_replace('_',' ',$license->type))); ?> entitlement #<?php echo e($license->id); ?></strong><div class="small text-secondary"><?php echo e($license->supplier?->company_name ?: 'Supplier not recorded'); ?> · Purchased <?php echo e($license->purchase_date?->format(config('app.date_format', 'd M Y')) ?: 'date not recorded'); ?> · Expires <?php echo e($license->expiry_date?->format(config('app.date_format', 'd M Y')) ?: 'No expiry recorded'); ?></div></div>
+                            <div class="text-end"><span class="status-pill <?php echo e($license->expiry_date && $license->expiry_date->isPast() ? 'defective' : 'active'); ?>"><?php echo e($license->expiry_date && $license->expiry_date->isPast() ? 'Expired' : 'Current'); ?></span><div class="small text-secondary mt-1"><?php echo e($license->seats_assigned); ?> / <?php echo e($license->seats_total); ?> seats assigned</div></div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 small text-secondary mb-3"><span>Cycle: <?php echo e($license->subscription_cycle ?: 'Not specified'); ?></span><span>·</span><span>Cost: <?php echo e(number_format((float)$license->cost,2)); ?></span><span>·</span><span>Available: <?php echo e($license->seats_available); ?></span></div>
+                        <div class="table-responsive"><table class="table table-sm align-middle mb-2"><thead><tr><th>Assignee</th><th>Type</th><th>Assigned</th><th>State</th><th></th></tr></thead><tbody>
+                            <?php $__empty_3 = true; $__currentLoopData = $license->assignments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $allocation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_3 = false; ?>
+                                <tr><td><?php echo e($allocation->assignable?->full_name ?? $allocation->assignable?->asset_tag ?? 'Record unavailable'); ?></td><td><?php echo e(class_basename($allocation->assignable_type)); ?></td><td><?php echo e($allocation->assigned_at?->format(config('app.date_format', 'd M Y'))); ?></td><td><span class="status-pill <?php echo e($allocation->revoked_at ? 'inactive' : 'active'); ?>"><?php echo e($allocation->revoked_at ? 'Revoked' : 'Active'); ?></span></td><td class="text-end"><?php if(!$allocation->revoked_at && auth()->user()->hasPermission('software.manage')): ?><form method="POST" action="<?php echo e(route('software-catalog.licenses.revoke',$allocation)); ?>" onsubmit="return confirm('Revoke this software license allocation?')"><?php echo csrf_field(); ?><button class="btn btn-sm btn-outline-danger">Revoke</button></form><?php endif; ?></td></tr>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_3): ?><tr><td colspan="5" class="text-secondary small py-2">No license allocations yet.</td></tr><?php endif; ?>
+                        </tbody></table></div>
+                        <?php if(auth()->user()->hasPermission('software.manage')): ?>
+                        <div class="row g-3 mt-1">
+                            <div class="col-lg-5"><div class="bg-light rounded p-3 h-100"><strong class="small d-block mb-2">Allocate a seat</strong><form method="POST" action="<?php echo e(route('software-catalog.licenses.assign',$license)); ?>"><?php echo csrf_field(); ?><div class="row g-2"><div class="col-12"><label class="form-label">Employee (optional)</label><select name="employee_id" class="form-select form-select-sm"><option value="">Select employee</option><?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($employee->id); ?>"><?php echo e($employee->employee_no); ?> — <?php echo e($employee->full_name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div><div class="col-12"><label class="form-label">IT asset (optional)</label><select name="asset_id" class="form-select form-select-sm"><option value="">Select asset</option><?php $__currentLoopData = $assets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $asset): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($asset->id); ?>"><?php echo e($asset->asset_tag); ?> — <?php echo e($asset->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select><small class="form-text">Select one employee or one asset, not both.</small></div><div class="col-12"><label class="form-label">Assigned date</label><input type="date" name="assigned_at" value="<?php echo e(today()->toDateString()); ?>" class="form-control form-control-sm" required></div><div class="col-12 text-end"><button class="btn btn-sm btn-primary" <?php if($license->seats_available<1): echo 'disabled'; endif; ?>>Assign seat</button></div></div></form></div></div>
+                            <div class="col-lg-7"><div class="bg-light rounded p-3 h-100"><strong class="small d-block mb-2">Record license renewal</strong><form method="POST" action="<?php echo e(route('software-catalog.licenses.renew',$license)); ?>"><?php echo csrf_field(); ?><div class="row g-2"><div class="col-md-4"><label class="form-label">Renewed on</label><input type="date" name="renewed_on" class="form-control form-control-sm" value="<?php echo e(today()->toDateString()); ?>" required></div><div class="col-md-4"><label class="form-label">New expiry</label><input type="date" name="new_expiry" class="form-control form-control-sm" value="<?php echo e(today()->addYear()->toDateString()); ?>" required></div><div class="col-md-4"><label class="form-label">Renewal cost</label><input type="number" step="0.01" min="0" name="cost" class="form-control form-control-sm" value="<?php echo e($license->cost); ?>" required></div><div class="col-12"><label class="form-label">Remarks</label><input name="remarks" class="form-control form-control-sm" maxlength="2000"></div><div class="col-12 text-end"><button class="btn btn-sm btn-outline-primary">Save renewal</button></div></div></form>
+                                <?php if($license->renewals->isNotEmpty()): ?><div class="mt-3"><span class="small fw-semibold">Renewal history</span><ul class="small text-secondary mb-0"><?php $__currentLoopData = $license->renewals->sortByDesc('renewed_on'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $renewal): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><li><?php echo e($renewal->renewed_on?->format(config('app.date_format', 'd M Y'))); ?> → <?php echo e($renewal->new_expiry?->format(config('app.date_format', 'd M Y'))); ?> · <?php echo e(number_format((float)$renewal->cost,2)); ?> · <?php echo e($renewal->renewedBy?->name ?? 'System'); ?></li><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></ul></div><?php endif; ?>
+                            </div></div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_2): ?>
+                    <div class="empty-state">No license entitlements registered for this software product.</div>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasPermission('software.manage')): ?>
+                    <details class="mt-3"><summary class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-lg me-1"></i>Add license entitlement</summary>
+                        <form method="POST" action="<?php echo e(route('software-catalog.licenses.store',$product)); ?>" class="mt-2 p-3 rounded border bg-white"><?php echo csrf_field(); ?><div class="row g-2"><div class="col-md-3"><label class="form-label">License type</label><select name="type" class="form-select form-select-sm" required><option value="subscription">Subscription</option><option value="perpetual">Perpetual</option><option value="volume">Volume</option><option value="open_source">Open source</option><option value="trial">Trial</option></select></div><div class="col-md-2"><label class="form-label">Total seats</label><input type="number" name="seats_total" min="1" class="form-control form-control-sm" value="1" required></div><div class="col-md-2"><label class="form-label">Purchase date</label><input type="date" name="purchase_date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label">Expiry date</label><input type="date" name="expiry_date" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label">Total cost</label><input type="number" step="0.01" min="0" name="cost" class="form-control form-control-sm" value="0" required></div><div class="col-md-3"><label class="form-label">Subscription cycle</label><select name="subscription_cycle" class="form-select form-select-sm"><option value="">Not applicable</option><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="annually">Annually</option><option value="biennial">Biennial</option><option value="one_time">One time</option><option value="other">Other</option></select></div><div class="col-md-3"><label class="form-label">Supplier</label><select name="supplier_id" class="form-select form-select-sm"><option value="">Not recorded</option><?php $__currentLoopData = $suppliers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $supplier): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($supplier->id); ?>"><?php echo e($supplier->company_name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div><div class="col-md-6"><label class="form-label">License key (encrypted at rest)</label><input name="license_key" class="form-control form-control-sm" maxlength="5000" autocomplete="off"></div><div class="col-12 text-end"><button class="btn btn-sm btn-primary">Save entitlement</button></div></div></form>
+                    </details>
+                <?php endif; ?>
+            </div>
+        </section>
+    </div>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+    <div class="col-12"><div class="panel empty-state">No software products have been registered yet.</div></div>
+<?php endif; ?>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\it-inventory\resources\views/software-catalog/index.blade.php ENDPATH**/ ?>

@@ -1,0 +1,12 @@
+<?php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class BackupRecord extends Model
+{
+    public $timestamps = false;
+    protected $guarded = [];
+    protected function casts(): array { return ['created_at' => 'datetime']; }
+    public function creator() { return $this->belongsTo(User::class, 'created_by'); }
+}

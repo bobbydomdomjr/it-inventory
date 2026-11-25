@@ -1,0 +1,111 @@
+<?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\{AuthController,DashboardController,InventoryResourceController,WorkflowController,ReportController,UserController,SettingsController,NotificationController,DocumentController,ApprovalController,ImportController,BackupController,ScanController,FeatureWorkflowController,PortalController,MfaController,ApprovalFlowController,StockCountController,MaintenanceScheduleController,PurchaseRequestController,SupplierEvaluationController,EmployeeWorkflowController,LicenseCatalogController,BrandingLogoController,OfficeController,InventoryStockController,ProfileController};
+Route::get('/branding/logo',[BrandingLogoController::class,'show'])->name('branding.logo');
+Route::middleware('guest')->group(function(){Route::get('/login',[AuthController::class,'create'])->name('login');Route::post('/login',[AuthController::class,'store'])->middleware('throttle:10,1')->name('login.store');});
+Route::middleware('auth')->group(function(){
+ Route::get('/mfa/challenge',[MfaController::class,'challenge'])->name('mfa.challenge');
+ Route::post('/mfa/challenge',[MfaController::class,'verifyChallenge'])->middleware('throttle:10,1')->name('mfa.challenge.verify');
+ Route::post('/logout',[AuthController::class,'destroy'])->name('logout');
+});
+Route::middleware(['auth','mfa.verified','password.change'])->group(function(){
+ Route::get('/password/change',[AuthController::class,'editPassword'])->name('password.change');
+ Route::get('/profile',[ProfileController::class,'edit'])->name('profile.edit');
+ Route::put('/profile',[ProfileController::class,'update'])->name('profile.update');
+ Route::put('/profile/password',[ProfileController::class,'updatePassword'])->name('profile.password.update');
+ Route::put('/password/change',[AuthController::class,'updatePassword'])->name('password.update');
+ Route::get('/security/mfa',[MfaController::class,'settings'])->name('mfa.settings');
+ Route::post('/security/mfa/enable',[MfaController::class,'enable'])->name('mfa.enable');
+ Route::post('/security/mfa/disable',[MfaController::class,'disable'])->name('mfa.disable');
+ Route::redirect('/', '/dashboard');
+ Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard')->middleware('permission:system.access');
+ Route::get('/software/catalog',[LicenseCatalogController::class,'index'])->name('software-catalog.index');
+ Route::post('/software/catalog',[LicenseCatalogController::class,'storeSoftware'])->name('software-catalog.store');
+ Route::put('/software/catalog/{software}',[LicenseCatalogController::class,'updateSoftware'])->name('software-catalog.update');
+ Route::post('/software/catalog/{software}/licenses',[LicenseCatalogController::class,'storeLicense'])->name('software-catalog.licenses.store');
+ Route::post('/software/licenses/{license}/renewals',[LicenseCatalogController::class,'renew'])->name('software-catalog.licenses.renew');
+ Route::post('/software/licenses/{license}/assignments',[LicenseCatalogController::class,'assign'])->name('software-catalog.licenses.assign');
+ Route::post('/software/license-assignments/{assignment}/revoke',[LicenseCatalogController::class,'revoke'])->name('software-catalog.licenses.revoke');
+ Route::get('/assets/bulk-labels',[InventoryResourceController::class,'bulkLabels'])->name('assets.bulk-labels');
+ Route::get('/assets/{id}/image',[InventoryResourceController::class,'showImage'])->whereNumber('id')->name('assets.image');
+ Route::post('/assets/{id}/image',[InventoryResourceController::class,'updateImage'])->whereNumber('id')->name('assets.image.update');
+ Route::delete('/assets/{id}/image',[InventoryResourceController::class,'removeImage'])->whereNumber('id')->name('assets.image.destroy');
+ Route::post('/assets/bulk-update',[InventoryResourceController::class,'bulkUpdateAssets'])->name('assets.bulk-update');
+ Route::prefix('manage/{resource}')->name('inventory.')->where(['resource'=>'assets|categories|employees|departments|locations|suppliers|consumables|software|maintenance|tickets|procurements|assignments|transfers|audits|disposals'])->controller(InventoryResourceController::class)->group(function(){Route::get('/','index')->name('index');Route::get('/create','create')->name('create');Route::post('/','store')->name('store');Route::get('/{id}','show')->whereNumber('id')->name('show');Route::get('/{id}/clone','duplicate')->whereNumber('id')->name('clone');Route::get('/{id}/edit','edit')->whereNumber('id')->name('edit');Route::put('/{id}','update')->whereNumber('id')->name('update');Route::delete('/{id}','destroy')->whereNumber('id')->name('destroy');});
+ Route::post('/assets/{asset}/assign',[WorkflowController::class,'assign'])->name('assets.assign');Route::post('/assets/bulk-assign',[WorkflowController::class,'bulkAssign'])->name('assets.bulk-assign');Route::post('/assignments/{assignment}/approve',[WorkflowController::class,'approveAssignment'])->name('assignments.approve');Route::post('/assignments/{assignment}/reject',[WorkflowController::class,'rejectAssignment'])->name('assignments.reject');Route::post('/assignments/{assignment}/return',[WorkflowController::class,'returnAsset'])->name('assignments.return');Route::get('/assignments/{assignment}/signature',[WorkflowController::class,'signature'])->name('assignments.signature');Route::get('/assignments/{assignment}/issuance-form',[WorkflowController::class,'receipt'])->name('assignments.issuance');Route::get('/transfers/{transfer}/turnover-form',[WorkflowController::class,'turnover'])->name('transfers.turnover');Route::post('/assets/{asset}/transfer',[WorkflowController::class,'requestTransfer'])->name('assets.transfer');Route::post('/transfers/{transfer}/approve',[WorkflowController::class,'approveTransfer'])->name('transfers.approve');Route::post('/transfers/{transfer}/reject',[WorkflowController::class,'rejectTransfer'])->name('transfers.reject');Route::get('/stock-ledger',[InventoryStockController::class,'index'])->name('stock-ledger.index'); Route::post('/consumables/{item}/movement',[InventoryStockController::class,'movement'])->name('consumables.movement');
+ Route::post('/consumables/{item}/transfer',[InventoryStockController::class,'transfer'])->name('consumables.transfer');
+ Route::post('/consumables/{item}/reserve',[InventoryStockController::class,'reserve'])->name('consumables.reserve');
+ Route::post('/stock-reservations/{reservation}/issue',[InventoryStockController::class,'issueReservation'])->name('stock-reservations.issue');
+ Route::post('/stock-reservations/{reservation}/release',[InventoryStockController::class,'releaseReservation'])->name('stock-reservations.release');
+ Route::post('/stock/replenishment-request',[InventoryStockController::class,'createReplenishmentRequest'])->name('stock.replenishment.create');
+ Route::get('/stock-counts/variance.csv',[InventoryStockController::class,'varianceCsv'])->name('stock-counts.variance.csv');Route::post('/audits/{audit}/verify',[WorkflowController::class,'verifyAudit'])->name('audits.verify');
+
+ Route::get('/imports/{resource}/template',[ImportController::class,'template'])->name('imports.template');
+ Route::post('/imports/{resource}',[ImportController::class,'import'])->name('imports.store');
+ Route::get('/documents',[DocumentController::class,'index'])->name('documents.index');
+ Route::get('/documents/{document}/preview',[DocumentController::class,'preview'])->name('documents.preview');
+ Route::post('/documents/{resource}/{id}',[DocumentController::class,'store'])->whereNumber('id')->name('documents.store');
+
+ // Stocktaking: physical quantities are reconciled only through the stock ledger.
+ Route::get('/stock-counts',[StockCountController::class,'index'])->name('stock-counts.index');
+ Route::post('/stock-counts',[StockCountController::class,'store'])->name('stock-counts.store');
+ Route::get('/stock-counts/{stockCount}',[StockCountController::class,'show'])->name('stock-counts.show');
+ Route::put('/stock-counts/{stockCount}/items',[StockCountController::class,'updateItems'])->name('stock-counts.items.update');
+ Route::post('/stock-counts/{stockCount}/submit',[StockCountController::class,'submit'])->name('stock-counts.submit');
+ Route::post('/stock-counts/{stockCount}/approve',[StockCountController::class,'approve'])->name('stock-counts.approve');
+ Route::post('/stock-counts/{stockCount}/reject',[StockCountController::class,'reject'])->name('stock-counts.reject');
+
+ // Preventive maintenance schedules and generated work orders.
+ Route::get('/maintenance-schedules',[MaintenanceScheduleController::class,'index'])->name('maintenance-schedules.index');
+ Route::post('/maintenance-schedules',[MaintenanceScheduleController::class,'store'])->name('maintenance-schedules.store');
+ Route::patch('/maintenance-schedules/{schedule}/toggle',[MaintenanceScheduleController::class,'toggle'])->name('maintenance-schedules.toggle');
+ Route::post('/maintenance-schedules/generate-due',[MaintenanceScheduleController::class,'generateDue'])->name('maintenance-schedules.generate');
+ Route::post('/work-orders/{workOrder}/complete',[MaintenanceScheduleController::class,'complete'])->name('maintenance-schedules.work-orders.complete');
+ Route::post('/work-orders/{workOrder}/cancel',[MaintenanceScheduleController::class,'cancel'])->name('maintenance-schedules.work-orders.cancel');
+
+ // Normalized procurement lifecycle: PR > quotations > PO > receiving > inspection.
+ Route::get('/procurement/requests',[PurchaseRequestController::class,'index'])->name('procurement.requests.index');
+ Route::post('/procurement/requests',[PurchaseRequestController::class,'store'])->name('procurement.requests.store');
+ Route::get('/procurement/requests/{purchaseRequest}',[PurchaseRequestController::class,'show'])->name('procurement.requests.show');
+ Route::post('/procurement/requests/{purchaseRequest}/submit',[PurchaseRequestController::class,'submit'])->name('procurement.requests.submit');
+ Route::post('/procurement/requests/{purchaseRequest}/quotations',[PurchaseRequestController::class,'storeQuotation'])->name('procurement.requests.quotations.store');
+ Route::get('/procurement/requests/{purchaseRequest}/quotations/{quotation}/download',[PurchaseRequestController::class,'downloadQuotation'])->name('procurement.requests.quotations.download');
+ Route::post('/procurement/requests/{purchaseRequest}/quotations/{quotation}/select',[PurchaseRequestController::class,'selectQuotation'])->name('procurement.requests.quotations.select');
+ Route::post('/procurement/requests/{purchaseRequest}/purchase-order',[PurchaseRequestController::class,'createPurchaseOrder'])->name('procurement.requests.purchase-order');
+ Route::post('/procurement/purchase-orders/{purchaseOrder}/receiving-reports',[PurchaseRequestController::class,'receive'])->name('procurement.receiving.store');
+ Route::post('/procurement/receiving-reports/{receivingReport}/inspect',[PurchaseRequestController::class,'inspect'])->name('procurement.receiving.inspect');
+ Route::post('/suppliers/{supplier}/evaluations',[SupplierEvaluationController::class,'store'])->name('suppliers.evaluations.store');
+ Route::post('/employees/{employee}/offboard',[EmployeeWorkflowController::class,'offboard'])->name('employees.offboard');
+ Route::get('/documents/{document}/download',[DocumentController::class,'download'])->name('documents.download');
+ Route::delete('/documents/{document}',[DocumentController::class,'destroy'])->name('documents.destroy');
+ Route::get('/approvals',[ApprovalController::class,'index'])->name('approvals.index');
+ Route::get('/admin/approval-flows',[ApprovalFlowController::class,'index'])->name('admin.approval-flows');Route::post('/admin/approval-flows',[ApprovalFlowController::class,'store'])->name('admin.approval-flows.store');Route::post('/admin/approval-flows/{flow}/steps',[ApprovalFlowController::class,'addStep'])->name('admin.approval-flows.steps.store');Route::delete('/admin/approval-flows/{flow}/steps/{step}',[ApprovalFlowController::class,'destroyStep'])->name('admin.approval-flows.steps.destroy');Route::patch('/admin/approval-flows/{flow}/toggle',[ApprovalFlowController::class,'toggle'])->name('admin.approval-flows.toggle');Route::delete('/admin/approval-flows/{flow}',[ApprovalFlowController::class,'destroy'])->name('admin.approval-flows.destroy');
+ Route::post('/approvals/submit/{resource}/{id}',[ApprovalController::class,'submit'])->whereNumber('id')->name('approvals.submit');
+ Route::post('/approvals/{approval}/decision',[ApprovalController::class,'decide'])->name('approvals.decide');
+ Route::get('/notifications',[NotificationController::class,'index'])->name('notifications.index');
+ Route::post('/notifications/read-all',[NotificationController::class,'readAll'])->name('notifications.read-all');
+ Route::post('/notifications/{id}/read',[NotificationController::class,'read'])->name('notifications.read');
+ Route::get('/settings',[SettingsController::class,'index'])->name('settings.index');
+ Route::put('/settings',[SettingsController::class,'update'])->name('settings.update');
+ Route::post('/settings/test-email',[SettingsController::class,'testEmail'])->middleware('throttle:3,1')->name('settings.test-email');
+ Route::get('/backups',[BackupController::class,'index'])->name('backups.index');
+ Route::get('/backups/runbook',[BackupController::class,'runbook'])->name('backups.runbook');
+ Route::post('/backups',[BackupController::class,'create'])->name('backups.create');
+ Route::get('/backups/{backup}/download',[BackupController::class,'download'])->name('backups.download');
+ Route::delete('/backups/{backup}',[BackupController::class,'destroy'])->name('backups.destroy');
+ Route::get('/scan',[ScanController::class,'index'])->name('scan.index');
+ Route::get('/audits/{audit}/scan',[ScanController::class,'audit'])->name('audits.scan');
+ Route::get('/my-equipment',[PortalController::class,'index'])->name('portal.index');
+ Route::post('/my-tickets',[PortalController::class,'ticket'])->name('portal.tickets.store');
+ Route::post('/tickets/{ticket}/comments',[FeatureWorkflowController::class,'ticketComment'])->name('tickets.comments.store');
+ Route::post('/licenses/{license}/assign',[FeatureWorkflowController::class,'assignSoftware'])->name('licenses.assign');
+ Route::post('/license-assignments/{assignment}/return',[FeatureWorkflowController::class,'returnSoftware'])->name('licenses.return');
+ Route::post('/assets/{asset}/disposal',[FeatureWorkflowController::class,'requestDisposal'])->name('assets.disposal');
+ Route::post('/disposals/{disposal}/complete',[FeatureWorkflowController::class,'completeDisposal'])->name('disposals.complete');
+ Route::post('/maintenance/{maintenance}/complete',[FeatureWorkflowController::class,'completeMaintenance'])->name('maintenance.complete');Route::post('/maintenance/{maintenance}/cancel',[FeatureWorkflowController::class,'cancelMaintenance'])->name('maintenance.cancel');Route::post('/audits/{audit}/complete',[WorkflowController::class,'completeAudit'])->name('audits.complete');
+ Route::post('/procurements/{procurement}/order',[FeatureWorkflowController::class,'placeProcurementOrder'])->name('procurements.order');Route::post('/procurements/{procurement}/receive',[FeatureWorkflowController::class,'receiveProcurement'])->name('procurements.receive');Route::post('/procurements/{procurement}/assets',[FeatureWorkflowController::class,'registerProcurementAsset'])->name('procurements.assets.store');
+ Route::get('/assignments/{assignment}/receipt',[WorkflowController::class,'receipt'])->name('assignments.receipt');
+ Route::get('/reports/export/{resource}/{format}',[ReportController::class,'export'])->where(['resource'=>'assets|stock|maintenance|tickets|employees|departments|locations|categories|suppliers|assignments|transfers|procurements|audits|disposals|software|licenses|purchase_requests|depreciation','format'=>'pdf|xlsx'])->name('reports.export');Route::get('/reports',[ReportController::class,'index'])->name('reports.index');Route::get('/reports/assets.csv',[ReportController::class,'assetsCsv'])->name('reports.assets.csv');Route::get('/reports/stock.csv',[ReportController::class,'stockCsv'])->name('reports.stock.csv');Route::get('/reports/depreciation.csv',[ReportController::class,'depreciationCsv'])->name('reports.depreciation.csv');Route::get('/reports/maintenance.csv',[ReportController::class,'maintenanceCsv'])->name('reports.maintenance.csv');Route::get('/reports/tickets.csv',[ReportController::class,'ticketsCsv'])->name('reports.tickets.csv');Route::get('/reports/registers/{resource}.csv',[ReportController::class,'registerCsv'])->where(['resource'=>'assignments|transfers|procurements|audits|disposals|software|licenses|purchase_requests|employees|departments|locations|categories|suppliers'])->name('reports.registers.csv');Route::get('/activity',[ReportController::class,'activity'])->name('activity.index');
+ Route::get('/admin/offices',[OfficeController::class,'index'])->name('admin.offices');Route::post('/admin/offices',[OfficeController::class,'store'])->name('admin.offices.store');Route::put('/admin/offices/{office}',[OfficeController::class,'update'])->name('admin.offices.update');Route::delete('/admin/offices/{office}',[OfficeController::class,'destroy'])->name('admin.offices.destroy');
+ Route::get('/admin/users',[UserController::class,'index'])->name('admin.users');Route::post('/admin/users',[UserController::class,'store'])->name('admin.users.store');Route::put('/admin/users/{user}',[UserController::class,'update'])->name('admin.users.update');Route::post('/admin/users/{user}/credentials',[UserController::class,'issueCredentials'])->name('admin.users.credentials');Route::delete('/admin/users/{user}',[UserController::class,'destroy'])->name('admin.users.destroy');Route::patch('/admin/users/{user}/toggle',[UserController::class,'toggle'])->name('admin.users.toggle');Route::get('/admin/roles',[UserController::class,'roles'])->name('admin.roles');Route::put('/admin/roles/{role}',[UserController::class,'updateRole'])->name('admin.roles.update');
+});
